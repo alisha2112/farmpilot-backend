@@ -18,14 +18,14 @@ public class Pregnancy {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "insemination_date", nullable = false)
-    private LocalDate inseminationDate;
+    private LocalDate inseminationDate = LocalDate.now();
     @Column(name = "expected_birth_date", nullable = false)
     private LocalDate expectedBirthDate;
     @Column(name = "actual_birth_date")
     private LocalDate actualBirthDate;
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private PregnancyStatus status;
+    private PregnancyStatus status = PregnancyStatus.PLANNED;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pig_id", nullable = false)
