@@ -19,9 +19,9 @@ public class FeedInventory {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
     @Column(name = "cost_per_kg", nullable = false, precision = 15, scale = 2)
-    private BigDecimal costPerKg;
+    private BigDecimal costPerKg = BigDecimal.ZERO;
     @Column(name = "number_in_kg", nullable = false, precision = 10, scale = 2)
-    private BigDecimal numberInKg;
+    private BigDecimal numberInKg = BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "farm_id", nullable = false)
