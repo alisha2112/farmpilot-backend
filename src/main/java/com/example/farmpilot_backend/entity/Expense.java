@@ -26,7 +26,7 @@ public class Expense {
     private LocalDate expenseDate = LocalDate.now();
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 50)
-    private ExpenseCategory category;
+    private ExpenseCategory category = ExpenseCategory.OTHER;;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "farm_id", nullable = false)
