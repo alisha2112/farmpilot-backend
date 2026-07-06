@@ -22,7 +22,7 @@ public class FarmController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdFarm);
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public ResponseEntity<FarmDto> getFarmById(@PathVariable Long id) {
         FarmDto farm = farmService.getFarmById(id);
         return ResponseEntity.ok(farm);
@@ -34,13 +34,13 @@ public class FarmController {
         return ResponseEntity.ok(farms);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<FarmDto> updateFarm(@PathVariable Long id, @RequestBody FarmRequest request) {
         FarmDto updatedFarm = farmService.updateFarm(id, request);
         return ResponseEntity.ok(updatedFarm);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFarm(@PathVariable Long id) {
         farmService.deleteFarm(id);
         return ResponseEntity.noContent().build();
