@@ -1,8 +1,10 @@
 package com.example.farmpilot_backend.controller;
 
+import com.example.farmpilot_backend.dto.InseminationRequest;
 import com.example.farmpilot_backend.dto.PregnancyDto;
 import com.example.farmpilot_backend.dto.PregnancyRequest;
 import com.example.farmpilot_backend.service.PregnancyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +46,11 @@ public class PregnancyController {
     public ResponseEntity<Void> deleteFarm(@PathVariable Long id) {
         pregnancyService.deletePregnancy(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/inseminate")
+    public ResponseEntity<PregnancyDto> recordInsemination(@Valid @RequestBody InseminationRequest request) {
+        PregnancyDto result = pregnancyService.recordInsemination(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 }

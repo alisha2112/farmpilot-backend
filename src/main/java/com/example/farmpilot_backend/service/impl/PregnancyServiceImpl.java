@@ -1,10 +1,13 @@
 package com.example.farmpilot_backend.service.impl;
 
+import com.example.farmpilot_backend.dto.InseminationRequest;
 import com.example.farmpilot_backend.dto.PregnancyDto;
 import com.example.farmpilot_backend.dto.PregnancyRequest;
 import com.example.farmpilot_backend.entity.Pig;
 import com.example.farmpilot_backend.entity.Pregnancy;
+import com.example.farmpilot_backend.entity.enums.PregnancyStatus;
 import com.example.farmpilot_backend.mapper.PregnancyMapper;
+import com.example.farmpilot_backend.repository.PigRepository;
 import com.example.farmpilot_backend.repository.PregnancyRepository;
 import com.example.farmpilot_backend.service.PregnancyService;
 import jakarta.persistence.EntityNotFoundException;
@@ -12,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +24,7 @@ import java.util.stream.Collectors;
 public class PregnancyServiceImpl implements PregnancyService {
     private final PregnancyMapper pregnancyMapper;
     private final PregnancyRepository pregnancyRepository;
+    private final PigRepository pigRepository;
 
     @Override
     @Transactional
@@ -68,5 +73,28 @@ public class PregnancyServiceImpl implements PregnancyService {
             throw new EntityNotFoundException("Pregnancy with ID: " + id + " not found.");
         }
         pregnancyRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public PregnancyDto recordInsemination(InseminationRequest request) {
+        Pig pig = pigRepository.findById(request.getPigId())
+                .orElseThrow(() -> new EntityNotFoundException("Pig with ID " + request.getPigId() + " not found"));
+
+        if (pig.getSex() != null && pig.getSex().name().equals("MALE")) {
+            throw new IllegalArgumentException("Cannot register pregnancy: the selected animal is male!");
+        }
+
+        LocalDate insemDate = request.getInseminationDate() != null ? request.getInseminationDate() : LocalDate.now();
+        LocalDate expectedBirth = insemDate.plusDays(114);
+
+        Pregnancy pregnancy = new Pregnancy();
+        pregnancy.setPig(pig);
+        pregnancy.setInseminationDate(insemDate);
+        pregnancy.setExpectedBirthDate(expectedBirth);
+        pregnancy.setStatus(PregnancyStatus.PLANNED);
+
+        Pregnancy savedPregnancy = pregnancyRepository.save(pregnancy);
+        return pregnancyMapper.toDto(savedPregnancy);
     }
 }
