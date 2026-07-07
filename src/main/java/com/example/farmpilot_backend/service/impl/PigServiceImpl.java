@@ -12,12 +12,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PigServiceImpl implements PigService {
+    private static final int MIN_CASTRATION_AGE_DAYS = 14;
     private final PigMapper pigMapper;
     private final PigRepository pigRepository;
 
@@ -70,5 +73,41 @@ public class PigServiceImpl implements PigService {
             throw new EntityNotFoundException("Pig with ID: " + id + " not found.");
         }
         pigRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PigDto> getCastrationCandidates() {
+        LocalDate thresholdDate = LocalDate.now().minusDays(MIN_CASTRATION_AGE_DAYS);
+
+        return pigRepository.findCastrationCandidates(thresholdDate).stream()
+                .map(pigMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public PigDto castratePig(Long id) {
+        Pig pig = pigRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pig with ID " + id + " not found."));
+
+        if (pig.getSex() == null || !pig.getSex().name().equals("MALE")) {
+            throw new IllegalArgumentException("Only male pigs can be castrated.");
+        }
+
+        if (Boolean.TRUE.equals(pig.getCastration())) {
+            throw new IllegalArgumentException("This pig is already castrated.");
+        }
+
+        long ageInDays = ChronoUnit.DAYS.between(pig.getDateOfBirth(), LocalDate.now());
+        if (ageInDays < MIN_CASTRATION_AGE_DAYS) {
+            throw new IllegalArgumentException("Pig is too young for castration. Minimum age is " +
+                    MIN_CASTRATION_AGE_DAYS + " days. Current age: " + ageInDays + " days.");
+        }
+
+        pig.setCastration(true);
+        Pig updatedPig = pigRepository.save(pig);
+
+        return pigMapper.toDto(updatedPig);
     }
 }

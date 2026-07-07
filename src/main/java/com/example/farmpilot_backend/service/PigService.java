@@ -11,4 +11,6 @@ public interface PigService {
     List<PigDto> getAllPigs();
     PigDto updatePig(Long id, PigRequest request);
     void deletePig(Long id);
+    List<PigDto> getCastrationCandidates();
+    PigDto castratePig(Long id);
 }

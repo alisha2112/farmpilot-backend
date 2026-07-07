@@ -45,4 +45,16 @@ public class PigController {
         pigService.deletePig(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/castration-candidates")
+    public ResponseEntity<List<PigDto>> getCastrationCandidates() {
+        List<PigDto> candidates = pigService.getCastrationCandidates();
+        return ResponseEntity.ok(candidates);
+    }
+
+    @PatchMapping("/{id}/castrate")
+    public ResponseEntity<PigDto> castratePig(@PathVariable Long id) {
+        PigDto castratedPig = pigService.castratePig(id);
+        return ResponseEntity.ok(castratedPig);
+    }
 }
