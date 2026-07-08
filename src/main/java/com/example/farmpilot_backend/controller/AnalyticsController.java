@@ -1,5 +1,6 @@
 package com.example.farmpilot_backend.controller;
 
+import com.example.farmpilot_backend.dto.FarmOverviewDto;
 import com.example.farmpilot_backend.dto.FinancialReportDto;
 import com.example.farmpilot_backend.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
@@ -18,5 +19,11 @@ public class AnalyticsController {
             @RequestParam int month) {
         FinancialReportDto report = analyticsService.getMonthlyFinancialReport(year, month);
         return ResponseEntity.ok(report);
+    }
+
+    @GetMapping("/overview")
+    public ResponseEntity<FarmOverviewDto> getFarmOverview() {
+        FarmOverviewDto overview = analyticsService.getFarmOverview();
+        return ResponseEntity.ok(overview);
     }
 }

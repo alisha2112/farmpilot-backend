@@ -11,4 +11,6 @@ import java.util.List;
 public interface PigRepository extends JpaRepository<Pig, Long> {
     @Query("SELECT p FROM Pig p WHERE p.sex = 'MALE' AND p.castration = false AND p.dateOfBirth <= :thresholdDate")
     List<Pig> findCastrationCandidates(@Param("thresholdDate") LocalDate thresholdDate);
+
+    long countByStatus(String status);
 }
