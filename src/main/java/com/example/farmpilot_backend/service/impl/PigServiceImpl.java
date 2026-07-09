@@ -1,10 +1,15 @@
 package com.example.farmpilot_backend.service.impl;
 
+import com.example.farmpilot_backend.dto.HealthUpdateRequest;
 import com.example.farmpilot_backend.dto.PigDto;
 import com.example.farmpilot_backend.dto.PigRequest;
+import com.example.farmpilot_backend.dto.SellPigRequest;
 import com.example.farmpilot_backend.entity.Farm;
+import com.example.farmpilot_backend.entity.Income;
 import com.example.farmpilot_backend.entity.Pig;
+import com.example.farmpilot_backend.entity.enums.PigStatus;
 import com.example.farmpilot_backend.mapper.PigMapper;
+import com.example.farmpilot_backend.repository.IncomeRepository;
 import com.example.farmpilot_backend.repository.PigRepository;
 import com.example.farmpilot_backend.service.PigService;
 import jakarta.persistence.EntityNotFoundException;
@@ -23,6 +28,7 @@ public class PigServiceImpl implements PigService {
     private static final int MIN_CASTRATION_AGE_DAYS = 14;
     private final PigMapper pigMapper;
     private final PigRepository pigRepository;
+    private final IncomeRepository incomeRepository;
 
     @Override
     @Transactional
@@ -108,6 +114,30 @@ public class PigServiceImpl implements PigService {
         pig.setCastration(true);
         Pig updatedPig = pigRepository.save(pig);
 
+        return pigMapper.toDto(updatedPig);
+    }
+
+    @Override
+    @Transactional
+    public PigDto sellPig(Long id, SellPigRequest request) {
+        Pig pig = pigRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pig with ID " + id + " not found."));
+
+        if (PigStatus.SOLD.equals(pig.getStatus()) || PigStatus.DECEASED.equals(pig.getStatus())) {
+            throw new IllegalArgumentException("Cannot sell a pig that is already sold or deceased.");
+        }
+
+        pig.setStatus(PigStatus.SOLD);
+        pig.setWeight(request.getFinalWeight());
+
+        Income income = new Income();
+        income.setSource("Sale of pig #" + pig.getTagNumber());
+        income.setAmount(request.getSalePrice());
+        income.setCategory("PIG_SALE");
+        income.setPig(pig);
+        income.setFarm(pig.getFarm());
+        incomeRepository.save(income);
+        Pig updatedPig = pigRepository.save(pig);
         return pigMapper.toDto(updatedPig);
     }
 }
