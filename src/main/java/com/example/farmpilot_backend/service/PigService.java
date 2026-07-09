@@ -16,4 +16,5 @@ public interface PigService {
     List<PigDto> getCastrationCandidates();
     PigDto castratePig(Long id);
     PigDto sellPig(Long id, SellPigRequest request);
+    PigDto updateHealthRecord(Long id, HealthUpdateRequest request);
 }

@@ -5,6 +5,7 @@ import com.example.farmpilot_backend.dto.PigDto;
 import com.example.farmpilot_backend.dto.PigRequest;
 import com.example.farmpilot_backend.dto.SellPigRequest;
 import com.example.farmpilot_backend.entity.Farm;
+import com.example.farmpilot_backend.entity.HealthRecord;
 import com.example.farmpilot_backend.entity.Income;
 import com.example.farmpilot_backend.entity.Pig;
 import com.example.farmpilot_backend.entity.enums.PigStatus;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -138,6 +140,45 @@ public class PigServiceImpl implements PigService {
         income.setFarm(pig.getFarm());
         incomeRepository.save(income);
         Pig updatedPig = pigRepository.save(pig);
+        return pigMapper.toDto(updatedPig);
+    }
+
+    @Override
+    @Transactional
+    public PigDto updateHealthRecord(Long id, HealthUpdateRequest request) {
+        Pig pig = pigRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pig with ID " + id + " not found."));
+
+        HealthRecord record = pig.getHealth();
+        if (record == null) {
+            record = new HealthRecord();
+        }
+
+        if (request.getNewVaccine() != null && !request.getNewVaccine().isBlank()) {
+            if (record.getVaccines() == null) {
+                record.setVaccines(new ArrayList<>());
+            }
+            record.getVaccines().add(request.getNewVaccine());
+        }
+
+        if (request.getCheckupDate() != null && !request.getCheckupDate().isBlank()) {
+            record.setLastCheckupDate(request.getCheckupDate());
+        }
+
+        if (request.getNewNote() != null && !request.getNewNote().isBlank()) {
+            String existingNotes = record.getNotes();
+            String noteToAdd = "[" + java.time.LocalDate.now() + "] " + request.getNewNote();
+
+            if (existingNotes == null || existingNotes.isBlank()) {
+                record.setNotes(noteToAdd);
+            } else {
+                record.setNotes(existingNotes + " | " + noteToAdd);
+            }
+        }
+
+        pig.setHealth(record);
+        Pig updatedPig = pigRepository.save(pig);
+
         return pigMapper.toDto(updatedPig);
     }
 }
