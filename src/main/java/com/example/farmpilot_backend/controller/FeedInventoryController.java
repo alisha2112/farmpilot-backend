@@ -6,6 +6,7 @@ import com.example.farmpilot_backend.service.FeedInventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,30 +17,35 @@ import java.util.List;
 public class FeedInventoryController {
     private final FeedInventoryService feedInventoryService;
 
+    @PreAuthorize("hasRole('FARMER')")
     @PostMapping
     public ResponseEntity<FeedInventoryDto> createFeedInventory(@RequestBody FeedInventoryRequest request) {
         FeedInventoryDto createdInventory = feedInventoryService.createFeedInventory(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdInventory);
     }
 
+    @PreAuthorize("hasAnyRole('FARMER', 'VETERINARIAN')")
     @GetMapping("/{id}")
     public ResponseEntity<FeedInventoryDto> getFeedInventoryById(@PathVariable Long id) {
         FeedInventoryDto inventory = feedInventoryService.getFeedInventoryById(id);
         return ResponseEntity.ok(inventory);
     }
 
+    @PreAuthorize("hasAnyRole('FARMER', 'VETERINARIAN')")
     @GetMapping
     public ResponseEntity<List<FeedInventoryDto>> getAllFeedInventories() {
         List<FeedInventoryDto> inventories = feedInventoryService.getAllFeedInventories();
         return ResponseEntity.ok(inventories);
     }
 
+    @PreAuthorize("hasRole('FARMER')")
     @PutMapping("/{id}")
     public ResponseEntity<FeedInventoryDto> updateFeedInventory(@PathVariable Long id, @RequestBody FeedInventoryRequest request) {
         FeedInventoryDto updatedInventory = feedInventoryService.updateFeedInventory(id, request);
         return ResponseEntity.ok(updatedInventory);
     }
 
+    @PreAuthorize("hasRole('FARMER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFeedInventory(@PathVariable Long id) {
         feedInventoryService.deleteFeedInventory(id);

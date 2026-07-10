@@ -5,7 +5,6 @@ import com.example.farmpilot_backend.dto.LoginRequest;
 import com.example.farmpilot_backend.dto.RegisterRequest;
 import com.example.farmpilot_backend.entity.Farm;
 import com.example.farmpilot_backend.entity.User;
-import com.example.farmpilot_backend.entity.enums.Role;
 import com.example.farmpilot_backend.repository.FarmRepository;
 import com.example.farmpilot_backend.repository.UserRepository;
 import com.example.farmpilot_backend.security.JwtCore;
@@ -13,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -46,6 +46,7 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(jwt, request.getUsername(), role));
     }
 
+    @PreAuthorize("hasRole('FARMER')")
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {

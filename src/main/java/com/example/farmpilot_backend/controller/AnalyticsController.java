@@ -5,6 +5,7 @@ import com.example.farmpilot_backend.dto.FinancialReportDto;
 import com.example.farmpilot_backend.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class AnalyticsController {
     private final AnalyticsService analyticsService;
 
+    @PreAuthorize("hasRole('FARMER')")
     @GetMapping("/financial-report")
     public ResponseEntity<FinancialReportDto> getMonthlyReport(
             @RequestParam int year,
@@ -21,6 +23,7 @@ public class AnalyticsController {
         return ResponseEntity.ok(report);
     }
 
+    @PreAuthorize("hasAnyRole('FARMER', 'VETERINARIAN')")
     @GetMapping("/overview")
     public ResponseEntity<FarmOverviewDto> getFarmOverview() {
         FarmOverviewDto overview = analyticsService.getFarmOverview();
