@@ -30,6 +30,17 @@ services:
       - farmpilot_network
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: farmpilot-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: farmpilot
+      RABBITMQ_DEFAULT_PASS: password
+    restart: unless-stopped
+
 volumes:
   postgres_data:
 
