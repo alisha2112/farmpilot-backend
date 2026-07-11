@@ -1,6 +1,7 @@
 package com.example.farmpilot_backend.job;
 
 import com.example.farmpilot_backend.entity.FeedInventory;
+import com.example.farmpilot_backend.publisher.AlertPublisher;
 import com.example.farmpilot_backend.repository.FeedInventoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import java.util.List;
 @Slf4j
 public class FeedInventoryMonitorJob {
     private final FeedInventoryRepository feedInventoryRepository;
+    private final AlertPublisher alertPublisher;
     private static final BigDecimal CRITICAL_THRESHOLD_KG = new BigDecimal("100.00");
 
     @Scheduled(cron = "0 0 9 * * ?")
@@ -36,6 +38,10 @@ public class FeedInventoryMonitorJob {
 
             log.warn("SUPPLY ALERT: Critical low stock for '{}' at farm '{}'! Only {} kg left. Urgent restock required.",
                     feedName, farmName, currentAmount);
+
+            String alertMessage = String.format("SUPPLY ALERT: Critical low stock for '%s' at farm '%s'! Only %s kg left. Urgent restock required.",
+                    feedName, farmName, currentAmount);
+            alertPublisher.publishAlert(alertMessage);
         }
 
         log.info("Feed inventory monitor job finished. Found {} items requiring restock.", criticalInventories.size());
