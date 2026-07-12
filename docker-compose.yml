@@ -41,6 +41,17 @@ services:
       RABBITMQ_DEFAULT_PASS: password
     restart: unless-stopped
 
+  mongodb:
+    image: mongo:6.0
+    container_name: farmpilot-mongodb
+    ports:
+      - "27015:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoadmin
+      MONGO_INITDB_ROOT_PASSWORD: mongopassword
+      MONGO_INITDB_DATABASE: farmpilot_logs
+    restart: unless-stopped
+
 volumes:
   postgres_data:
 
