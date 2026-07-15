@@ -52,6 +52,13 @@ services:
       MONGO_INITDB_DATABASE: farmpilot_logs
     restart: unless-stopped
 
+  redis:
+    image: redis:7.2
+    container_name: farmpilot-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
 volumes:
   postgres_data:
 

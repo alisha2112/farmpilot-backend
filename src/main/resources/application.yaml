@@ -28,6 +28,9 @@ spring:
   data:
     mongodb:
       uri: mongodb://mongoadmin:mongopassword@localhost:27015/farmpilot_logs?authSource=admin
+    redis:
+      host: localhost
+      port: 6379
 
   ai:
     ollama:
